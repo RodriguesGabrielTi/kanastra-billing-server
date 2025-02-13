@@ -54,10 +54,15 @@ Considerando que o Container está rodando, rode o seguinte comando para entrar 
 
 Selecione a base
 ```bash
-    switched to db kanastra_billing
+    use kanastra_billing
 ```
 
 Contabilize a quantidade de documentos da collection
 ```bash
     db.billing_debts.countDocuments()
+```
+
+Liste os primeiros 5 arquivos
+```bash
+   db.debts.find().limit(5);
 ```
