@@ -1,0 +1,36 @@
+services:
+  web:
+    build:
+      context: .
+    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:6
+    container_name: kanastra_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - kanastra_mongo_data:/data/db
+      - ./init_mongo.sh:/docker-entrypoint-initdb.d/init_mongo.sh
+    environment:
+      MONGO_INITDB_DATABASE: ${APP_DB:-kanastra_billing}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-mongo_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongo_password}
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  kanastra_mongo_data:
